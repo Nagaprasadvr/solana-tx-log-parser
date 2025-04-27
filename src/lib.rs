@@ -4,7 +4,7 @@ use solana_rpc_client::nonblocking::rpc_client;
 use solana_rpc_client_api::config::RpcTransactionConfig;
 use solana_sdk::{commitment_config::CommitmentConfig, signature::Signature};
 use solana_transaction_status_client_types::{
-    UiTransactionEncoding, option_serializer::OptionSerializer,
+    UiTransactionEncoding, UiTransactionStatusMeta, option_serializer::OptionSerializer,
 };
 
 const LOG_PREFIX: &str = "Program log:";
@@ -75,6 +75,12 @@ impl TxLogParser {
         Ok(())
     }
 
+    pub fn get_logs(&self) -> Vec<String> {
+        self.tx_logs
+            .as_ref()
+            .map_or(Vec::new(), |logs| logs.clone())
+    }
+
     pub fn print_logs(&self) {
         if let Some(ref logs) = self.tx_logs {
             println!("Transaction Logs:");
@@ -84,6 +90,37 @@ impl TxLogParser {
         } else {
             println!("No logs found.");
         }
+    }
+
+    pub fn print_logs_from_vec(logs: &Vec<String>) {
+        println!("Transaction Logs:");
+        for (idx, log) in logs.iter().enumerate() {
+            println!("[{}] {}", idx + 1, log);
+        }
+    }
+
+    pub fn parse_from_tx(tx: &UiTransactionStatusMeta, log_filter: Option<String>) -> Vec<String> {
+        let mut tx_logs: Vec<String> = Vec::new();
+
+        if let OptionSerializer::Some(ref logs) = tx.log_messages {
+            for log in logs {
+                if log.contains(LOG_PREFIX) {
+                    let mut log = log.replace(&LOG_PREFIX, "");
+                    log = log.trim().to_string();
+
+                    if log.is_empty() {
+                        continue;
+                    }
+                    tx_logs.push(log);
+                }
+            }
+        }
+
+        if let Some(ref log_filter) = log_filter {
+            tx_logs.retain(|log| log.to_lowercase().contains(&log_filter.to_lowercase()));
+        }
+
+        tx_logs
     }
 }
 
@@ -114,5 +151,9 @@ mod tests {
         assert!(logs.is_ok());
 
         parser.print_logs();
+
+        let logs = parser.get_logs();
+
+        assert!(!logs.is_empty());
     }
 }
