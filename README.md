@@ -7,10 +7,10 @@
 ```rust
 let filter = "Instruction"; // Example filter
 let tx_sig = "5mEjzNZjbrFmwyAWUMZemyASaheGj4MFWo2rG8DsD98m2ukKtx8JXkERhJ6GCFPc7s4D2zh36d8XrNBEsquagKkY";
-let mut tx_log_parser = TxLogParser::new(tx_sig.to_string(), Some(filter), rpc_url);
+let mut tx_log_parser = TxLogParser::new(rpc_url, tx_sig.to_string(), Some(filter), false);
 tx_log_parser.parse().await?;
-let tx_logs = tx_log_parser.get_logs();
-tx_log_parser.print_logs();
+let tx_logs = tx_log_parser.get_tx_logs();
+tx_log_parser.print_tx_logs();
 ```
 
 ## From UiTransactionWithStatusMeta
@@ -80,4 +80,22 @@ Transaction Logs:
 [4] Instruction: Execute
 [5] Instruction: Buy
 [6] Instruction: Transfer
+```
+
+## Parsing Compute Unit logs
+
+```rust
+let tx_sig = "5mEjzNZjbrFmwyAWUMZemyASaheGj4MFWo2rG8DsD98m2ukKtx8JXkERhJ6GCFPc7s4D2zh36d8XrNBEsquagKkY";
+let mut tx_log_parser = TxLogParser::new(rpc_url, tx_sig.to_string(), Some(filter), true);
+tx_log_parser.parse().await?;
+let tx_logs = tx_log_parser.get_cu_logs();
+tx_log_parser.print_cu_logs();
+```
+
+```bash
+Compute Unit Logs:
+Program ID: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, Consumed: 4645
+Program ID: DCJ9x4W4XhvWs6JbFzdZCVeJXacpFaYDCgaVh2ozW7ak, Consumed: 74130
+Program ID: 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P, Consumed: 36246
+Program ID: ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL, Consumed: 24988
 ```
