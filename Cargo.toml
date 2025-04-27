@@ -1,0 +1,18 @@
+[package]
+name = "solana-tx-log-parser"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+
+[dev-dependencies]
+tokio = { version = "1.34" }
+
+[dependencies]
+clap = { version = "4.5.37", features = ["derive", "env"] }
+solana-rpc-client = "2.2.7"
+solana-rpc-client-api = "2.2.7"
+solana-sdk = "2.2.2"
+solana-transaction-status-client-types = "2.2.7"
